@@ -15,7 +15,18 @@ $initials = implode('', array_map(fn($w) => mb_substr($w, 0, 1), explode(' ', OW
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Portfolio of <?= e(OWNER_NAME) ?>, aspiring web developer.">
     <title><?= e($pageTitle) ?> | <?= e(OWNER_NAME) ?></title>
-    <script>document.documentElement.classList.add('js');</script>
+    <script>
+        // Apply the saved (or system) theme before the page paints to avoid a flash
+        (function () {
+            var root = document.documentElement, theme = null;
+            root.classList.add('js');
+            try { theme = localStorage.getItem('theme'); } catch (e) {}
+            if (theme !== 'light' && theme !== 'dark') {
+                theme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            }
+            root.setAttribute('data-theme', theme);
+        })();
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
@@ -39,6 +50,10 @@ $initials = implode('', array_map(fn($w) => mb_substr($w, 0, 1), explode(' ', OW
                 <?php endforeach; ?>
             </ul>
         </nav>
+        <button type="button" class="theme-toggle" aria-label="Switch to dark mode" title="Toggle dark mode">
+            <span class="theme-moon"><?= icon('moon', 20) ?></span>
+            <span class="theme-sun"><?= icon('sun', 20) ?></span>
+        </button>
     </div>
 </header>
 <main id="main">
