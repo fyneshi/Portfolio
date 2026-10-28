@@ -35,6 +35,7 @@ $initials = implode('', array_map(fn($w) => mb_substr($w, 0, 1), explode(' ', OW
     <script src="<?= $basePath ?>js/main.js?v=<?= filemtime(__DIR__ . '/../js/main.js') ?>" defer></script>
 </head>
 <body>
+<canvas class="night-sky" aria-hidden="true"></canvas>
 <a href="#main" class="skip-link">Skip to content</a>
 <header class="site-header">
     <div class="container nav-wrap">

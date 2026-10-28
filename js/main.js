@@ -32,6 +32,180 @@
     var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     var finePointer = window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches;
 
+    // Dark mode backdrop: starry night sky over a pine forest (fixed behind the page)
+    var sky = document.querySelector('.night-sky');
+    if (sky && sky.getContext) {
+        var sctx = sky.getContext('2d');
+        var back = document.createElement('canvas');   // sky gradient + moon (static)
+        var front = document.createElement('canvas');  // forest silhouettes (static)
+        var stars = [], shooting = null, nextShot = 0;
+        var SW, SH, skyRunning = false;
+
+        // Seeded random so the forest looks the same on every visit
+        var seeded = function (seed) {
+            return function () {
+                seed |= 0; seed = seed + 0x6D2B79F5 | 0;
+                var t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+                t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+                return ((t ^ t >>> 14) >>> 0) / 4294967296;
+            };
+        };
+
+        var drawPine = function (c, x, baseY, h, w) {
+            // Five stacked tiers with drooping branch tips, widening toward the ground
+            var tiers = 5;
+            c.beginPath();
+            for (var tier = 0; tier < tiers; tier++) {
+                var top = baseY - h + tier * h * 0.16;
+                var bottom = top + h * 0.3;
+                var half = w * 0.5 * (0.35 + 0.65 * (tier + 1) / tiers);
+                c.moveTo(x, top);
+                c.quadraticCurveTo(x + half * 0.35, bottom - h * 0.1, x + half, bottom);
+                c.lineTo(x - half, bottom);
+                c.quadraticCurveTo(x - half * 0.35, bottom - h * 0.1, x, top);
+            }
+            c.rect(x - w * 0.05, baseY - h * 0.08, w * 0.1, h * 0.08);
+            c.fill();
+        };
+
+        var buildScene = function () {
+            var dpr = Math.min(window.devicePixelRatio || 1, 2);
+            SW = window.innerWidth;
+            SH = window.innerHeight;
+            [sky, back, front].forEach(function (cv) {
+                cv.width = SW * dpr;
+                cv.height = SH * dpr;
+                cv.getContext('2d').setTransform(dpr, 0, 0, dpr, 0, 0);
+            });
+
+            // Sky gradient, deep navy fading to a faint glow at the horizon
+            var b = back.getContext('2d');
+            var g = b.createLinearGradient(0, 0, 0, SH);
+            g.addColorStop(0, '#040814');
+            g.addColorStop(0.55, '#0a1430');
+            g.addColorStop(1, '#16264d');
+            b.fillStyle = g;
+            b.fillRect(0, 0, SW, SH);
+
+            // Moon with a soft halo
+            var mx = Math.max(60, SW * 0.06), my = Math.min(SH * 0.2, 190), mr = Math.max(16, Math.min(SW, SH) * 0.028);
+            var halo = b.createRadialGradient(mx, my, mr, mx, my, mr * 7);
+            halo.addColorStop(0, 'rgba(200, 215, 255, 0.22)');
+            halo.addColorStop(1, 'rgba(200, 215, 255, 0)');
+            b.fillStyle = halo;
+            b.fillRect(mx - mr * 7, my - mr * 7, mr * 14, mr * 14);
+            b.fillStyle = '#e9eeff';
+            b.beginPath();
+            b.arc(mx, my, mr, 0, 6.2832);
+            b.fill();
+
+            // Forest: three layers, far (lighter, misty) to near (darkest)
+            var f = front.getContext('2d');
+            var rand = seeded(42);
+            var scale = Math.min(SH, 900);
+            var layers = [
+                { color: '#13213f', min: 0.2,  max: 0.32, gap: 0.5,  mist: 'rgba(40, 62, 110, 0.35)' },
+                { color: '#0b1530', min: 0.14, max: 0.23, gap: 0.45, mist: 'rgba(25, 40, 80, 0.3)' },
+                { color: '#050a18', min: 0.08, max: 0.15, gap: 0.4,  mist: null }
+            ];
+            layers.forEach(function (layer, li) {
+                var baseY = SH + 4;
+                // ground band so gaps between trees aren't see-through
+                f.fillStyle = layer.color;
+                f.fillRect(0, SH - scale * (0.03 + 0.015 * (2 - li)), SW, SH);
+                var x = -20;
+                while (x < SW + 40) {
+                    var h = scale * (layer.min + rand() * (layer.max - layer.min));
+                    var w = h * (0.38 + rand() * 0.12);
+                    drawPine(f, x, baseY, h, w);
+                    x += w * (layer.gap + rand() * 0.35);
+                }
+                if (layer.mist) {
+                    var mist = f.createLinearGradient(0, SH - scale * 0.12, 0, SH);
+                    mist.addColorStop(0, 'rgba(0, 0, 0, 0)');
+                    mist.addColorStop(1, layer.mist);
+                    f.fillStyle = mist;
+                    f.fillRect(0, SH - scale * 0.12, SW, scale * 0.12);
+                }
+            });
+
+            // Stars, denser near the top of the sky
+            stars = [];
+            var count = Math.min(650, Math.round(SW * SH / 2600));
+            var srand = seeded(7);
+            for (var i = 0; i < count; i++) {
+                stars.push({
+                    x: srand() * SW,
+                    y: Math.pow(srand(), 1.6) * SH * 0.85,
+                    r: 0.3 + Math.pow(srand(), 3) * 1.4,
+                    a: 0.35 + srand() * 0.65,
+                    speed: 0.5 + srand() * 2,
+                    phase: srand() * 6.2832
+                });
+            }
+        };
+
+        var drawSky = function (time) {
+            var t = (time || 0) / 1000;
+            sctx.drawImage(back, 0, 0, SW, SH);
+
+            for (var i = 0; i < stars.length; i++) {
+                var s = stars[i];
+                var twinkle = reduceMotion ? 1 : 0.6 + 0.4 * Math.sin(t * s.speed + s.phase);
+                sctx.fillStyle = 'rgba(235, 240, 255,' + (s.a * twinkle).toFixed(3) + ')';
+                sctx.beginPath();
+                sctx.arc(s.x, s.y, s.r, 0, 6.2832);
+                sctx.fill();
+            }
+
+            // Occasional shooting star
+            if (!reduceMotion) {
+                if (!shooting && t > nextShot) {
+                    shooting = { x: Math.random() * SW * 0.7, y: Math.random() * SH * 0.3, start: t };
+                    nextShot = t + 6 + Math.random() * 8;
+                }
+                if (shooting) {
+                    var p = (t - shooting.start) / 0.9;
+                    if (p >= 1) {
+                        shooting = null;
+                    } else {
+                        var len = 140, dx = 1, dy = 0.45;
+                        var hx = shooting.x + p * 420, hy = shooting.y + p * 420 * dy;
+                        var trail = sctx.createLinearGradient(hx, hy, hx - len * dx, hy - len * dy);
+                        trail.addColorStop(0, 'rgba(255, 255, 255,' + (1 - p).toFixed(2) + ')');
+                        trail.addColorStop(1, 'rgba(255, 255, 255, 0)');
+                        sctx.strokeStyle = trail;
+                        sctx.lineWidth = 1.5;
+                        sctx.beginPath();
+                        sctx.moveTo(hx, hy);
+                        sctx.lineTo(hx - len * dx, hy - len * dy);
+                        sctx.stroke();
+                    }
+                }
+            }
+
+            sctx.drawImage(front, 0, 0, SW, SH);
+        };
+
+        var isDark = function () { return root.getAttribute('data-theme') === 'dark'; };
+        var skyLoop = function (time) {
+            if (!isDark() || document.hidden) { skyRunning = false; return; }
+            drawSky(time);
+            requestAnimationFrame(skyLoop);
+        };
+        var updateSky = function () {
+            if (!isDark()) return;
+            if (reduceMotion) { drawSky(0); return; }
+            if (!skyRunning) { skyRunning = true; requestAnimationFrame(skyLoop); }
+        };
+
+        buildScene();
+        window.addEventListener('resize', function () { buildScene(); if (isDark()) drawSky(performance.now()); });
+        document.addEventListener('visibilitychange', updateSky);
+        new MutationObserver(updateSky).observe(root, { attributes: true, attributeFilter: ['data-theme'] });
+        updateSky();
+    }
+
     // 3D globe behind the hero photo (plain canvas, no library)
     var canvas = document.querySelector('.hero-canvas');
     if (canvas && canvas.getContext) {

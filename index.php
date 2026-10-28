@@ -24,7 +24,7 @@ $projects = [
     ['phone', 'Responsive Landing Page', 'A mobile-first landing page built using Flexbox and CSS Grid.', ['HTML', 'CSS']],
 ];
 
-$tech = ['PHP', 'MySQL', 'HTML', 'CSS', 'JavaScript'];
+$tech = ['PHP', 'MySQL', 'HTML', 'CSS', 'JavaScript', 'C++'];
 
 require __DIR__ . '/includes/header.php';
 ?>
@@ -33,7 +33,7 @@ require __DIR__ . '/includes/header.php';
     <canvas class="hero-canvas" aria-hidden="true"></canvas>
     <div class="container hero-grid">
         <div class="hero-text">
-            <span class="badge-pill"><span class="dot"></span> Aspiring Web Developer</span>
+            <span class="badge-pill"><span class="dot"></span> Aspiring IT Graduate</span>
             <h1>Hi, I'm <span class="highlight"><?= e(OWNER_NAME) ?></span></h1>
             <p class="lead">
                 Welcome to my portfolio! I'm an AMA Education System Senior High graduate who
