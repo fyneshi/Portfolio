@@ -16,8 +16,33 @@
     if (toggle) {
         toggle.addEventListener('click', function () {
             var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-            applyTheme(next);
             try { localStorage.setItem('theme', next); } catch (e) {}
+
+            // Spin the sun/moon icon in
+            root.classList.add('theme-anim');
+            setTimeout(function () { root.classList.remove('theme-anim'); }, 800);
+
+            if (!document.startViewTransition || reduceMotion) {
+                applyTheme(next);
+                return;
+            }
+
+            // Circular reveal: the new theme grows out of the toggle button
+            var rect = toggle.getBoundingClientRect();
+            var x = rect.left + rect.width / 2;
+            var y = rect.top + rect.height / 2;
+            var radius = Math.hypot(Math.max(x, window.innerWidth - x), Math.max(y, window.innerHeight - y));
+            var transition = document.startViewTransition(function () { applyTheme(next); });
+            // Safety net: never leave the theme unchanged if the transition stalls
+            setTimeout(function () {
+                if (root.getAttribute('data-theme') !== next) applyTheme(next);
+            }, 400);
+            transition.ready.then(function () {
+                root.animate(
+                    { clipPath: ['circle(0px at ' + x + 'px ' + y + 'px)', 'circle(' + radius + 'px at ' + x + 'px ' + y + 'px)'] },
+                    { duration: 750, easing: 'cubic-bezier(0.4, 0, 0.2, 1)', pseudoElement: '::view-transition-new(root)' }
+                );
+            });
         });
     }
     // Follow the system setting until the visitor picks a theme themselves

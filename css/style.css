@@ -298,6 +298,20 @@ img { max-width: 100%; display: block; }
 [data-theme="dark"] .theme-toggle .theme-moon { display: none; }
 .theme-toggle span { display: grid; }
 
+/* Theme switch animation: circular reveal (driven from main.js) + icon spin */
+::view-transition-old(root),
+::view-transition-new(root) {
+    animation: none;
+    mix-blend-mode: normal;
+}
+
+@keyframes icon-spin-in {
+    from { transform: rotate(-120deg) scale(0.3); opacity: 0; }
+    to   { transform: none; opacity: 1; }
+}
+
+.theme-anim .theme-toggle span { animation: icon-spin-in 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); }
+
 /* 4. Buttons, chips & icons ------------------------------ */
 .icon { flex-shrink: 0; }
 
