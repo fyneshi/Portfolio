@@ -30,7 +30,6 @@ require __DIR__ . '/includes/header.php';
 ?>
 
 <section class="hero">
-    <canvas class="hero-canvas" aria-hidden="true"></canvas>
     <div class="container hero-grid">
         <div class="hero-text">
             <span class="badge-pill"><span class="dot"></span> Aspiring IT Graduate</span>
@@ -50,8 +49,9 @@ require __DIR__ . '/includes/header.php';
                 <?php endforeach; ?>
             </div>
         </div>
-        <div class="hero-photo" data-tilt="8">
+        <div class="hero-photo">
             <div class="photo-frame">
+                <canvas class="hero-3d" aria-hidden="true"></canvas>
                 <img src="images/profile.jpg" alt="Portrait of <?= e(OWNER_NAME) ?>" width="800" height="1200">
                 <div class="float-card">
                     <span class="float-icon"><?= icon('cap', 20) ?></span>
@@ -152,5 +152,7 @@ require __DIR__ . '/includes/header.php';
         </div>
     </div>
 </section>
+
+<script type="module" src="js/hero3d.js?v=<?= filemtime(__DIR__ . '/js/hero3d.js') ?>"></script>
 
 <?php require __DIR__ . '/includes/footer.php'; ?>

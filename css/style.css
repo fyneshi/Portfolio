@@ -1077,15 +1077,21 @@ textarea:focus-visible,
 .footer-bottom p { margin: 0; }
 
 /* 3D effects --------------------------------------------- */
-.hero-canvas {
+/* WebGL scene (js/hero3d.js), centred on the photo and larger than it so the
+   orbits fit. Once it's ready (.is-3d) it replaces the flat photo. */
+.hero-3d {
     position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
+    left: -50%;
+    top: -25%;
+    width: 200%;
+    height: 150%;
     pointer-events: none;
+    z-index: 0;
 }
 
-.hero-grid { z-index: 1; }
+.photo-frame .float-card { z-index: 2; }
+.photo-frame.is-3d::before,
+.photo-frame.is-3d img { visibility: hidden; }
 
 /* Tilt targets keep their children in 3D space for a layered parallax */
 [data-tilt] {
@@ -1096,14 +1102,8 @@ textarea:focus-visible,
 
 [data-tilt].is-tilting { transition: transform 0.12s ease-out, box-shadow 0.25s ease !important; }
 
-.hero-photo[data-tilt] { transition: transform 0.6s ease; }
-
 /* Depth layers only on mouse devices (phones keep their flat layout) */
 @media (hover: hover) and (pointer: fine) and (min-width: 681px) {
-    .hero-photo .photo-frame { transform-style: preserve-3d; }
-    .hero-photo .photo-frame::before { transform: translateZ(-40px); }
-    .hero-photo .float-card { transform: translateZ(60px); }
-
     .card[data-tilt] .icon-box,
     .card[data-tilt] h3 { transform: translateZ(30px); }
 }
