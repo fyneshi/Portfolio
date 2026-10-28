@@ -299,10 +299,56 @@ img { max-width: 100%; display: block; }
 .theme-toggle span { display: grid; }
 
 /* Theme switch animation: circular reveal (driven from main.js) + icon spin */
-::view-transition-old(root),
-::view-transition-new(root) {
+.theme-switching::view-transition-old(root),
+.theme-switching::view-transition-new(root) {
     animation: none;
     mix-blend-mode: normal;
+}
+
+/* During a theme switch the whole page is revealed as one piece */
+.theme-switching .site-header,
+.theme-switching main,
+.theme-switching .main-nav a.active { view-transition-name: none !important; }
+
+/* Page-to-page transitions (cross-document View Transitions) */
+@view-transition { navigation: auto; }
+
+.site-header { view-transition-name: site-header; }
+main { view-transition-name: page-main; }
+.main-nav a.active { view-transition-name: nav-active; }
+
+/* The active menu pill glides to the new link */
+::view-transition-group(nav-active) {
+    animation-duration: 0.5s;
+    animation-timing-function: cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+
+::view-transition-group(page-main) { animation-duration: 0.55s; }
+
+/* Default: content lifts out and rises in */
+::view-transition-old(page-main) { animation: page-out 0.3s cubic-bezier(0.4, 0, 1, 1) both; }
+::view-transition-new(page-main) { animation: page-in 0.55s cubic-bezier(0, 0, 0.2, 1) 0.1s both; }
+
+/* Moving right in the menu (Home → Contact → Admin) slides left, and back again */
+html:active-view-transition-type(forward)::view-transition-old(page-main) { animation-name: page-out-left; }
+html:active-view-transition-type(forward)::view-transition-new(page-main) { animation-name: page-in-right; }
+html:active-view-transition-type(backward)::view-transition-old(page-main) { animation-name: page-out-right; }
+html:active-view-transition-type(backward)::view-transition-new(page-main) { animation-name: page-in-left; }
+
+@keyframes page-out { to { opacity: 0; transform: translateY(-14px) scale(0.985); filter: blur(6px); } }
+@keyframes page-in { from { opacity: 0; transform: translateY(22px) scale(0.985); filter: blur(6px); } }
+@keyframes page-out-left { to { opacity: 0; transform: translateX(-70px); filter: blur(6px); } }
+@keyframes page-in-right { from { opacity: 0; transform: translateX(70px); filter: blur(6px); } }
+@keyframes page-out-right { to { opacity: 0; transform: translateX(70px); filter: blur(6px); } }
+@keyframes page-in-left { from { opacity: 0; transform: translateX(-70px); filter: blur(6px); } }
+
+/* Fallback for browsers without View Transitions (set up in main.js) */
+.no-vt main { animation: page-in 0.5s cubic-bezier(0, 0, 0.2, 1) both; }
+.no-vt.page-leaving main { animation: page-out 0.22s cubic-bezier(0.4, 0, 1, 1) both; }
+
+@media (prefers-reduced-motion: reduce) {
+    @view-transition { navigation: none; }
+    .no-vt main { animation: none; }
 }
 
 @keyframes icon-spin-in {

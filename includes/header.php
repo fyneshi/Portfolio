@@ -25,6 +25,24 @@ $initials = implode('', array_map(fn($w) => mb_substr($w, 0, 1), explode(' ', OW
                 theme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
             }
             root.setAttribute('data-theme', theme);
+
+            // Page transitions: tell the CSS which way we're moving through the menu
+            if ('onpagereveal' in window) {
+                var rank = function (url) {
+                    var path = new URL(url).pathname;
+                    if (path.indexOf('/admin/') !== -1) return 2;
+                    if (path.indexOf('contact.php') !== -1) return 1;
+                    return 0;
+                };
+                window.addEventListener('pagereveal', function (e) {
+                    var nav = window.navigation;
+                    if (!e.viewTransition || !e.viewTransition.types || !nav || !nav.activation || !nav.activation.from) return;
+                    var from = rank(nav.activation.from.url), to = rank(location.href);
+                    if (from !== to) e.viewTransition.types.add(to > from ? 'forward' : 'backward');
+                });
+            } else {
+                root.classList.add('no-vt'); // main.js adds a simple fade instead
+            }
         })();
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">

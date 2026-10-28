@@ -32,7 +32,12 @@
             var x = rect.left + rect.width / 2;
             var y = rect.top + rect.height / 2;
             var radius = Math.hypot(Math.max(x, window.innerWidth - x), Math.max(y, window.innerHeight - y));
+            // .theme-switching keeps this separate from the page-to-page transitions in the CSS
+            root.classList.add('theme-switching');
+            var cleanup = function () { root.classList.remove('theme-switching'); };
             var transition = document.startViewTransition(function () { applyTheme(next); });
+            transition.finished.then(cleanup, cleanup);
+            setTimeout(cleanup, 1500);
             // Safety net: never leave the theme unchanged if the transition stalls
             setTimeout(function () {
                 if (root.getAttribute('data-theme') !== next) applyTheme(next);
@@ -56,6 +61,24 @@
 
     var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     var finePointer = window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+
+    // Page transition fallback for browsers without cross-document View Transitions
+    if (root.classList.contains('no-vt') && !reduceMotion) {
+        document.addEventListener('click', function (e) {
+            var link = e.target.closest && e.target.closest('a[href]');
+            if (!link || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey
+                || link.target === '_blank' || link.hasAttribute('download')) return;
+            var url = new URL(link.href, location.href);
+            if (url.origin !== location.origin || (url.pathname === location.pathname && url.hash)) return;
+            e.preventDefault();
+            root.classList.add('page-leaving');
+            setTimeout(function () { location.href = url.href; }, 220);
+        });
+        // Coming back via the back button restores the page from cache — undo the fade-out
+        window.addEventListener('pageshow', function (e) {
+            if (e.persisted) root.classList.remove('page-leaving');
+        });
+    }
 
     // Dark mode backdrop: starry night sky over a pine forest (fixed behind the page)
     var sky = document.querySelector('.night-sky');
