@@ -30,8 +30,9 @@ $initials = implode('', array_map(fn($w) => mb_substr($w, 0, 1), explode(' ', OW
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="<?= $basePath ?>css/style.css">
-    <script src="<?= $basePath ?>js/main.js" defer></script>
+    <?php // ?v= changes whenever the file changes, so browsers/hosts never serve a stale copy ?>
+    <link rel="stylesheet" href="<?= $basePath ?>css/style.css?v=<?= filemtime(__DIR__ . '/../css/style.css') ?>">
+    <script src="<?= $basePath ?>js/main.js?v=<?= filemtime(__DIR__ . '/../js/main.js') ?>" defer></script>
 </head>
 <body>
 <a href="#main" class="skip-link">Skip to content</a>
