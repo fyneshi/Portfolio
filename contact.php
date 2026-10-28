@@ -74,71 +74,101 @@ unset($_SESSION['flash_success']);
 require __DIR__ . '/includes/header.php';
 ?>
 
-<section class="section page-header">
+<section class="page-header">
     <div class="container narrow center">
-        <h1>Contact Me</h1>
-        <p>I'd be happy to hear from you. Let's start with your name.</p>
+        <p class="eyebrow">Contact</p>
+        <h1>Let's get in touch</h1>
+        <p>I'd be happy to hear from you. Start by telling me your name.</p>
     </div>
 </section>
 
 <section class="section">
-    <div class="container form-container">
+    <div class="container contact-grid">
 
-        <?php if ($errors): ?>
-            <div class="alert alert-error" role="alert">
-                <ul>
-                    <?php foreach ($errors as $error): ?>
-                        <li><?= e($error) ?></li>
-                    <?php endforeach; ?>
-                </ul>
-            </div>
-        <?php endif; ?>
+        <aside class="info-panel">
+            <h2>Why reach out?</h2>
+            <p>Whether you have a question, feedback or an opportunity, I'd love to hear about it.</p>
+            <ul class="info-list">
+                <li><span><?= icon('user', 18) ?></span> Tell me your name</li>
+                <li><span><?= icon('mail', 18) ?></span> Leave your email and message</li>
+                <li><span><?= icon('shield', 18) ?></span> Your details are stored securely</li>
+                <li><span><?= icon('check', 18) ?></span> I'll get back to you by email</li>
+            </ul>
+        </aside>
 
-        <?php if ($visitorName === null): ?>
-            <!-- Step 1: Name -->
-            <form method="post" class="form-card" novalidate>
-                <input type="hidden" name="csrf" value="<?= e(csrf_token()) ?>">
-                <input type="hidden" name="step" value="name">
-                <p class="step-label">Step 1 of 2</p>
-                <h2>What's your name?</h2>
-                <div class="form-group">
-                    <label for="name">Name</label>
-                    <input type="text" id="name" name="name" maxlength="100" required autofocus
-                           value="<?= e($_POST['name'] ?? '') ?>" placeholder="e.g. Juan Dela Cruz">
-                </div>
-                <button type="submit" class="btn btn-primary btn-block">Submit</button>
-            </form>
-        <?php else: ?>
-            <!-- Step 2: Welcome + contact form -->
-            <div class="welcome-banner">
-                <h2>Welcome <?= e($visitorName) ?> to my Portfolio!</h2>
-                <a href="contact.php?reset=1" class="small-link">Not you? Change name</a>
-            </div>
+        <div class="contact-main">
+            <ol class="stepper" aria-label="Progress">
+                <li class="<?= $visitorName === null ? 'active' : 'done' ?>">
+                    <span class="step-dot"><?= $visitorName === null ? '1' : icon('check', 16) ?></span> Your name
+                </li>
+                <li class="<?= $visitorName === null ? '' : 'active' ?>">
+                    <span class="step-dot">2</span> Your message
+                </li>
+            </ol>
 
-            <?php if ($success): ?>
-                <div class="alert alert-success" role="status">
-                    Thank you, <?= e($visitorName) ?>! Your message has been sent successfully.
+            <?php if ($errors): ?>
+                <div class="alert alert-error" role="alert">
+                    <ul>
+                        <?php foreach ($errors as $error): ?>
+                            <li><?= e($error) ?></li>
+                        <?php endforeach; ?>
+                    </ul>
                 </div>
             <?php endif; ?>
 
-            <form method="post" class="form-card" novalidate>
-                <input type="hidden" name="csrf" value="<?= e(csrf_token()) ?>">
-                <input type="hidden" name="step" value="message">
-                <p class="step-label">Step 2 of 2</p>
-                <h2>Send me a message</h2>
-                <div class="form-group">
-                    <label for="email">Email</label>
-                    <input type="email" id="email" name="email" maxlength="100" required
-                           value="<?= e($old['email']) ?>" placeholder="you@example.com">
+            <?php if ($visitorName === null): ?>
+                <!-- Step 1: Name -->
+                <form method="post" class="form-card" novalidate>
+                    <input type="hidden" name="csrf" value="<?= e(csrf_token()) ?>">
+                    <input type="hidden" name="step" value="name">
+                    <h2>What's your name?</h2>
+                    <p class="muted">So I know who I'm talking to.</p>
+                    <div class="form-group">
+                        <label for="name">Name</label>
+                        <div class="input-icon">
+                            <?= icon('user', 18) ?>
+                            <input type="text" id="name" name="name" maxlength="100" required autofocus
+                                   value="<?= e($_POST['name'] ?? '') ?>" placeholder="e.g. Juan Dela Cruz">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">Submit <?= icon('arrow', 18) ?></button>
+                </form>
+            <?php else: ?>
+                <!-- Step 2: Welcome + contact form -->
+                <div class="welcome-banner">
+                    <h2>Welcome <?= e($visitorName) ?> to my Portfolio!</h2>
+                    <a href="contact.php?reset=1" class="small-link">Not you? Change name</a>
                 </div>
-                <div class="form-group">
-                    <label for="message">Message</label>
-                    <textarea id="message" name="message" rows="6" maxlength="5000" required
-                              placeholder="Write your message here..."><?= e($old['message']) ?></textarea>
-                </div>
-                <button type="submit" class="btn btn-primary btn-block">Send Message</button>
-            </form>
-        <?php endif; ?>
+
+                <?php if ($success): ?>
+                    <div class="alert alert-success" role="status">
+                        <?= icon('check', 18) ?>
+                        <span>Thank you, <?= e($visitorName) ?>! Your message has been sent successfully.</span>
+                    </div>
+                <?php endif; ?>
+
+                <form method="post" class="form-card" novalidate>
+                    <input type="hidden" name="csrf" value="<?= e(csrf_token()) ?>">
+                    <input type="hidden" name="step" value="message">
+                    <h2>Send me a message</h2>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <div class="input-icon">
+                            <?= icon('mail', 18) ?>
+                            <input type="email" id="email" name="email" maxlength="100" required
+                                   value="<?= e($old['email']) ?>" placeholder="you@example.com">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="message">Message</label>
+                        <textarea id="message" name="message" rows="6" maxlength="5000" required
+                                  placeholder="Write your message here..."><?= e($old['message']) ?></textarea>
+                        <small class="char-count" data-for="message"></small>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">Send Message <?= icon('arrow', 18) ?></button>
+                </form>
+            <?php endif; ?>
+        </div>
 
     </div>
 </section>

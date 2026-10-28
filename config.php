@@ -25,6 +25,8 @@ define('OWNER_NAME', 'Yuuki Ogawa');
 define('ADMIN_USERNAME', 'admin');
 define('ADMIN_PASSWORD_HASH', '$2y$10$f8tYfWxCWJHefe2Kmkl8heBd9kyYsHJjyaDxkJcANg7qnGklsKmea');
 
+require_once __DIR__ . '/includes/icons.php';
+
 if (session_status() === PHP_SESSION_NONE) {
     // Own session name so logins don't mix with other sites on the same domain
     session_name('portfolio_session');

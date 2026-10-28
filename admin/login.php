@@ -35,11 +35,13 @@ $basePath   = '../';
 require __DIR__ . '/../includes/header.php';
 ?>
 
-<section class="section">
-    <div class="container form-container">
-        <form method="post" class="form-card" novalidate>
+<section class="auth-section">
+    <div class="container auth-wrap">
+        <form method="post" class="form-card auth-card" novalidate>
             <input type="hidden" name="csrf" value="<?= e(csrf_token()) ?>">
+            <span class="auth-icon"><?= icon('lock', 26) ?></span>
             <h1 class="form-title">Admin Login</h1>
+            <p class="muted center">Sign in to view contact messages.</p>
 
             <?php if ($error): ?>
                 <div class="alert alert-error" role="alert"><?= e($error) ?></div>
@@ -47,14 +49,21 @@ require __DIR__ . '/../includes/header.php';
 
             <div class="form-group">
                 <label for="username">Username</label>
-                <input type="text" id="username" name="username" required autofocus
-                       autocomplete="username" value="<?= e($username) ?>">
+                <div class="input-icon">
+                    <?= icon('user', 18) ?>
+                    <input type="text" id="username" name="username" required autofocus
+                           autocomplete="username" value="<?= e($username) ?>">
+                </div>
             </div>
             <div class="form-group">
                 <label for="password">Password</label>
-                <input type="password" id="password" name="password" required autocomplete="current-password">
+                <div class="input-icon">
+                    <?= icon('lock', 18) ?>
+                    <input type="password" id="password" name="password" required autocomplete="current-password">
+                </div>
             </div>
             <button type="submit" class="btn btn-primary btn-block">Login</button>
+            <a href="../index.php" class="back-link"><?= icon('arrow-left', 16) ?> Back to website</a>
         </form>
     </div>
 </section>
