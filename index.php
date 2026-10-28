@@ -30,6 +30,7 @@ require __DIR__ . '/includes/header.php';
 ?>
 
 <section class="hero">
+    <canvas class="hero-canvas" aria-hidden="true"></canvas>
     <div class="container hero-grid">
         <div class="hero-text">
             <span class="badge-pill"><span class="dot"></span> Aspiring Web Developer</span>
@@ -49,7 +50,7 @@ require __DIR__ . '/includes/header.php';
                 <?php endforeach; ?>
             </div>
         </div>
-        <div class="hero-photo">
+        <div class="hero-photo" data-tilt="8">
             <div class="photo-frame">
                 <img src="images/profile.jpg" alt="Portrait of <?= e(OWNER_NAME) ?>" width="800" height="1200">
                 <div class="float-card">
@@ -102,7 +103,7 @@ require __DIR__ . '/includes/header.php';
         </header>
         <div class="card-grid">
             <?php foreach ($skills as [$ic, $title, $desc]): ?>
-                <article class="card reveal">
+                <article class="card reveal" data-tilt="10">
                     <span class="icon-box"><?= icon($ic) ?></span>
                     <h3><?= e($title) ?></h3>
                     <p><?= e($desc) ?></p>
@@ -121,7 +122,7 @@ require __DIR__ . '/includes/header.php';
         </header>
         <div class="card-grid projects">
             <?php foreach ($projects as $i => [$ic, $title, $desc, $tags]): ?>
-                <article class="project-card reveal">
+                <article class="project-card reveal" data-tilt="8">
                     <div class="project-thumb thumb-<?= $i % 3 ?>">
                         <?= icon($ic, 44) ?>
                     </div>

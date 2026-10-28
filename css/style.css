@@ -1062,6 +1062,58 @@ textarea:focus-visible,
 .footer-bottom { border-top: 1px solid rgba(255, 255, 255, 0.08); padding: 20px 0; font-size: 0.85rem; }
 .footer-bottom p { margin: 0; }
 
+/* 3D effects --------------------------------------------- */
+.hero-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.hero-grid { z-index: 1; }
+
+/* Tilt targets keep their children in 3D space for a layered parallax */
+[data-tilt] {
+    position: relative;
+    transform-style: preserve-3d;
+    will-change: transform;
+}
+
+[data-tilt].is-tilting { transition: transform 0.12s ease-out, box-shadow 0.25s ease !important; }
+
+.hero-photo[data-tilt] { transition: transform 0.6s ease; }
+
+/* Depth layers only on mouse devices (phones keep their flat layout) */
+@media (hover: hover) and (pointer: fine) and (min-width: 681px) {
+    .hero-photo .photo-frame { transform-style: preserve-3d; }
+    .hero-photo .photo-frame::before { transform: translateZ(-40px); }
+    .hero-photo .float-card { transform: translateZ(60px); }
+
+    .card[data-tilt] .icon-box,
+    .card[data-tilt] h3 { transform: translateZ(30px); }
+}
+
+/* Soft light glare that follows the cursor */
+.card[data-tilt]::after,
+.project-card[data-tilt]::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    background: radial-gradient(circle at var(--gx, 50%) var(--gy, 50%), rgba(255, 255, 255, 0.35), transparent 55%);
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+[data-theme="dark"] .card[data-tilt]::after,
+[data-theme="dark"] .project-card[data-tilt]::after {
+    background: radial-gradient(circle at var(--gx, 50%) var(--gy, 50%), rgba(157, 181, 255, 0.12), transparent 55%);
+}
+
+.is-tilting::after { opacity: 1 !important; }
+
 /* 11. Animations ----------------------------------------- */
 @keyframes fade-up {
     from { opacity: 0; transform: translateY(20px); }
